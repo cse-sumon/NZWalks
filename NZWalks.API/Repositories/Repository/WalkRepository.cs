@@ -24,32 +24,58 @@ namespace NZWalks.API.Repositories.Repository
 
 
 
-        public async Task<IEnumerable<WalkDto>> GetAll()
+        public async Task<IEnumerable<WalkDto>> GetAll(string? filterOn = null, string? filterQuery = null,
+            string? sortBy = null, bool isAscending = true)
         {
-            
-            var walkDtos = await (from walk in _context.Walks
-                      join difficulty in _context.Difficulties
-                      on walk.DifficultyId equals difficulty.Id
-                      join region in _context.Regions
-                      on walk.RegionId equals region.Id
-                      select new WalkDto
-                      {
-                          Id = walk.Id,
-                          Name = walk.Name,
-                          Description = walk.Description,
-                          LengthInKm = walk.LengthInKm,
-                          WalkImageUrl = walk.WalkImageUrl,
-                          DifficultyId = walk.DifficultyId,
-                          RegionId = walk.RegionId,
-                          DifficultyName = difficulty.Name,
-                          RegionName = region.Name
-                      })
-                      .AsNoTracking()
-                      .ToListAsync();
+
+            var walkDtos = (from walk in _context.Walks
+                            join difficulty in _context.Difficulties
+                            on walk.DifficultyId equals difficulty.Id
+                            join region in _context.Regions
+                            on walk.RegionId equals region.Id
+                            select new WalkDto
+                            {
+                                Id = walk.Id,
+                                Name = walk.Name,
+                                Description = walk.Description,
+                                LengthInKm = walk.LengthInKm,
+                                WalkImageUrl = walk.WalkImageUrl,
+                                DifficultyId = walk.DifficultyId,
+                                RegionId = walk.RegionId,
+                                DifficultyName = difficulty.Name,
+                                RegionName = region.Name
+                            })
+                            .AsNoTracking();
+
+            //filtering
+            if (!string.IsNullOrWhiteSpace(filterOn) && !string.IsNullOrWhiteSpace(filterQuery))
+            {
+                if (filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase)) 
+                { 
+                    walkDtos = walkDtos.Where(x=>x.Name.Contains(filterQuery));
+                }
+            }
+
+            //sorting
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    walkDtos = isAscending ? walkDtos.OrderBy(x => x.Name) : walkDtos.OrderByDescending(x => x.Name);
+                }
+                else if (sortBy.Equals("Length", StringComparison.OrdinalIgnoreCase))
+                {
+                    walkDtos = isAscending ? walkDtos.OrderBy(x => x.LengthInKm) : walkDtos.OrderByDescending(x => x.LengthInKm);
+                }
+            }
 
 
 
-            return walkDtos;
+
+            return await walkDtos.ToListAsync();
+
+
+           
         }
 
         public async Task<WalkDto?> GetById(int id)

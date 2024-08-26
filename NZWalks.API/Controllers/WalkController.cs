@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NZWalks.API.CustomActionFilters;
 using NZWalks.API.Models.DTO;
 using NZWalks.API.Repositories.IRepository;
 using NZWalks.API.Repositories.Repository;
@@ -19,12 +20,14 @@ namespace NZWalks.API.Controllers
 
 
         // GET: api/walk
+        // GET: api/walk?filterOn=Name&filterQuiry=Track&sortBy=Name&isAscending
         [HttpGet]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending )
         {
             try
             {
-                var walk = await _walkRepository.GetAll();
+                var walk = await _walkRepository.GetAll(filterOn, filterQuery, sortBy, isAscending ?? true);
 
                 return Ok(walk);
             }
@@ -65,15 +68,11 @@ namespace NZWalks.API.Controllers
 
         // POST: api/walk
         [HttpPost]
+        [ValidateModelAttribute]
         public async Task<ActionResult> Create([FromBody] WalkDto walkDto)
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
                 await _walkRepository.Create(walkDto);
 
                 return Ok();
@@ -90,14 +89,14 @@ namespace NZWalks.API.Controllers
         // PUT: api/walk
         [HttpPut]
         [Route("{id}")]
+        [ValidateModelAttribute]
         public async Task<ActionResult> Update(int id, [FromBody] WalkDto walkDto)
         {
             try
             {
-                if (!ModelState.IsValid || walkDto.Id != id)
-                {
-                    return BadRequest(ModelState);
-                }
+                if (walkDto.Id != id)
+                    return BadRequest("Model Id & Parameter Id is not same");
+
 
                 var walk = await _walkRepository.GetById(id);
 

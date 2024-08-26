@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NZWalks.API.CustomActionFilters;
 using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
@@ -63,15 +64,12 @@ namespace NZWalks.API.Controllers
 
         // POST: https://localhost:portnumber/api/region
         [HttpPost]
+        [ValidateModelAttribute]
         public async Task<IActionResult> Create([FromBody] RegionDto regionDto)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest();
-
                 await _regionRepository.Create(regionDto);
-
 
                 return Ok();
             }
@@ -86,12 +84,13 @@ namespace NZWalks.API.Controllers
         // PUT: https://localhost:portnumber/api/region/{id}
         [HttpPut]
         [Route("{id}")]
+        [ValidateModelAttribute]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] RegionDto regionDto)
         {
             try
             {
-                if (!ModelState.IsValid || regionDto.Id != id)
-                    return BadRequest(ModelState);
+                if(regionDto.Id != id)
+                    return BadRequest("Model Id & Parameter Id is not same");
 
                 var region = await _regionRepository.GetById(id);
 

@@ -1,11 +1,13 @@
-﻿using NZWalks.API.Models.DTO;
+﻿using Microsoft.AspNetCore.Mvc;
+using NZWalks.API.Models.DTO;
 
 namespace NZWalks.API.Repositories.IRepository
 {
     public interface IWalkRepository
     {
 
-        Task<IEnumerable<WalkDto>> GetAll();
+        Task<IEnumerable<WalkDto>> GetAll(string? filterOn = null, string? filterQuery = null, 
+            string? sortBy = null, bool isAscending = true);
 
         Task <WalkDto?> GetById(int id);
 
