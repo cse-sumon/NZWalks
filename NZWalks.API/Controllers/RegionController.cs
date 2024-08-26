@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NZWalks.API.CustomActionFilters;
 using NZWalks.API.Data;
+using NZWalks.API.Helpers;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
 using NZWalks.API.Repositories.IRepository;
@@ -26,6 +28,7 @@ namespace NZWalks.API.Controllers
         // Get All Regions
         // GET: https://localhost:portnumber/api/region
         [HttpGet]
+        [Authorize(Roles = Roles.Reader)]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -45,6 +48,7 @@ namespace NZWalks.API.Controllers
         // GET: https://localhost:portnumber/api/region/{id}
         [HttpGet]
         [Route("{id}")]
+        [Authorize(Roles = Roles.Reader)]
         public async Task<IActionResult> GetById(int id) 
         {
             try
@@ -67,6 +71,7 @@ namespace NZWalks.API.Controllers
         // POST: https://localhost:portnumber/api/region
         [HttpPost]
         [ValidateModelAttribute]
+        [Authorize(Roles = Roles.Writer)]
         public async Task<IActionResult> Create([FromBody] RegionDto regionDto)
         {
             try
@@ -87,6 +92,7 @@ namespace NZWalks.API.Controllers
         [HttpPut]
         [Route("{id}")]
         [ValidateModelAttribute]
+        [Authorize(Roles = Roles.Writer)]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] RegionDto regionDto)
         {
             try
@@ -115,6 +121,7 @@ namespace NZWalks.API.Controllers
         // DELETE: https://localhost:portnumber/api/region/{id}
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Roles = Roles.Writer)]
         public async Task<IActionResult> Delete(int id)
         {
             try
