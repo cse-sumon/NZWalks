@@ -32,34 +32,48 @@ namespace NZWalks.API.Controllers
         [HttpPost]
         [Route("Register")]
         [ValidateModelAttribute]
-        [Authorize(Roles = Roles.Admin)]
+        //[Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             try
             {
-                var identityuser = new IdentityUser()
+
+                var identityResult = await _authRepository.Register(registerDto);
+
+                if (identityResult != null && identityResult.Succeeded)
                 {
-                    UserName = registerDto.UserName,
-                    Email = registerDto.UserName
-                };
-
-                var identityResult = await _userManager.CreateAsync(identityuser, registerDto.Password);
-
-                if (identityResult.Succeeded)
+                    return Ok("User registered successfully! Please login.");
+                }
+                else
                 {
-                    // Add Roles to this user
-                    if (registerDto.Roles is not null && registerDto.Roles.Any())
-                    {
-                        identityResult = await _userManager.AddToRolesAsync(identityuser, registerDto.Roles);
-
-                        if (identityResult.Succeeded)
-                        {
-                            return Ok("User registered successfully! Please login.");
-                        }
-                    }
+                    return BadRequest("Unable to registered! Something went wrong");
                 }
 
-                return BadRequest("Something went wrong");
+
+
+                //var identityuser = new IdentityUser()
+                //{
+                //    UserName = registerDto.UserName,
+                //    Email = registerDto.UserName
+                //};
+
+                //var identityResult = await _userManager.CreateAsync(identityuser, registerDto.Password);
+
+                //if (identityResult.Succeeded)
+                //{
+                //    // Add Roles to this user
+                //    if (registerDto.Roles is not null && registerDto.Roles.Any())
+                //    {
+                //        identityResult = await _userManager.AddToRolesAsync(identityuser, registerDto.Roles);
+
+                //        if (identityResult.Succeeded)
+                //        {
+                //            return Ok("User registered successfully! Please login.");
+                //        }
+                //    }
+                //}
+
+
             }
             catch (Exception ex)
             {
@@ -111,12 +125,12 @@ namespace NZWalks.API.Controllers
         [HttpGet]
         [Route("GetUsers")]
         [ValidateModelAttribute]
-        [Authorize(Roles = Roles.Admin)]
+        //[Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> GetUsers()
         {
             try
             {
-                var users = await _userManager.Users.ToListAsync();
+                var users = await _authRepository.GetAllUsers();
                 return Ok(users);
             }
             catch (Exception ex)
@@ -126,6 +140,54 @@ namespace NZWalks.API.Controllers
             }
         }
 
+
+        //GET: /api/Auth/GetUserById/1
+        [HttpGet]
+        [Route("GetUserById/{id}")]
+        [ValidateModelAttribute]
+        //[Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            try
+            {
+                var user = await _authRepository.GetUserById(id);
+
+                if (user is null)
+                    return NotFound();
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+
+        //GET: /api/Auth/DeleteUser
+        [HttpDelete]
+        [Route("DeleteUser/{id}")]
+        [ValidateModelAttribute]
+        //[Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            try
+            {
+                var user = await _authRepository.GetUserById(id);
+                if(user is null)
+                    return NotFound();
+
+                await _authRepository.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
 
 
 
