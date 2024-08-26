@@ -25,7 +25,7 @@ namespace NZWalks.API.Repositories.Repository
 
 
         public async Task<IEnumerable<WalkDto>> GetAll(string? filterOn = null, string? filterQuery = null,
-            string? sortBy = null, bool isAscending = true)
+            string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1)
         {
 
             var walkDtos = (from walk in _context.Walks
@@ -69,7 +69,11 @@ namespace NZWalks.API.Repositories.Repository
                 }
             }
 
+            //paginate
+            var skipResults = (pageNumber - 1) * pageSize;
 
+            walkDtos = walkDtos.Skip(skipResults)
+                               .Take(pageSize);
 
 
             return await walkDtos.ToListAsync();
