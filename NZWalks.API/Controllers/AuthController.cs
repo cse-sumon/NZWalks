@@ -8,6 +8,7 @@ using NZWalks.API.Helpers;
 using NZWalks.API.Models.DTO;
 using NZWalks.API.Repositories.IRepository;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 namespace NZWalks.API.Controllers
 {
@@ -50,30 +51,6 @@ namespace NZWalks.API.Controllers
                 }
 
 
-
-                //var identityuser = new IdentityUser()
-                //{
-                //    UserName = registerDto.UserName,
-                //    Email = registerDto.UserName
-                //};
-
-                //var identityResult = await _userManager.CreateAsync(identityuser, registerDto.Password);
-
-                //if (identityResult.Succeeded)
-                //{
-                //    // Add Roles to this user
-                //    if (registerDto.Roles is not null && registerDto.Roles.Any())
-                //    {
-                //        identityResult = await _userManager.AddToRolesAsync(identityuser, registerDto.Roles);
-
-                //        if (identityResult.Succeeded)
-                //        {
-                //            return Ok("User registered successfully! Please login.");
-                //        }
-                //    }
-                //}
-
-
             }
             catch (Exception ex)
             {
@@ -91,26 +68,17 @@ namespace NZWalks.API.Controllers
         {
             try
             {
-                var user = await _userManager.FindByEmailAsync(loginDto.UserName);
-                if (user is not null)
+                var loginResponseDto = await _authRepository.Login(loginDto);
+               
+                if (loginResponseDto is not null)
                 {
-                    var checkPasswordResult = await _userManager.CheckPasswordAsync(user, loginDto.Password);
-
-                    if (checkPasswordResult)
-                    {
-                        //Get Roles for this User
-                        var roles = await _userManager.GetRolesAsync(user);
-
-                        if (roles is not null)
-                        {
-                            //Create Token
-                            var loginResponseDto = await _authRepository.CreateJwtToken(user, roles.ToList());
-
-                            return Ok(loginResponseDto);
-                        }
-                    }
+                    return Ok(loginResponseDto);
                 }
-                return BadRequest("UserName or Password incorrect");
+                else
+                {
+                    return BadRequest("UserName or Password incorrect");
+                }
+
             }
             catch (Exception ex)
             {

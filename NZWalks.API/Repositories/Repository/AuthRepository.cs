@@ -55,6 +55,34 @@ namespace NZWalks.API.Repositories.Repository
 
 
 
+        public async Task<LoginResponseDto?> Login(LoginDto loginDto)
+        {
+            var user = await _userManager.FindByEmailAsync(loginDto.UserName);
+
+            if (user is not null)
+            {
+                var checkPasswordResult = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+
+                if (checkPasswordResult)
+                {
+                    //Get Roles for this User
+                    var roles = await _userManager.GetRolesAsync(user);
+
+                    if (roles is not null)
+                    {
+                        //Create Token
+                        var loginResponseDto = await CreateJwtToken(user, roles.ToList());
+
+                        return loginResponseDto;
+                    }
+                }
+            }
+
+            return null;
+
+        }
+
+
 
         public async Task<LoginResponseDto> CreateJwtToken(IdentityUser identityUser, List<string> roles)
         {
@@ -63,7 +91,7 @@ namespace NZWalks.API.Repositories.Repository
 
             claims.Add(new Claim(ClaimTypes.Email, identityUser.Email));
 
-            foreach (var role in roles) 
+            foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
@@ -77,7 +105,7 @@ namespace NZWalks.API.Repositories.Repository
                 _configuration["JWT:Audience"],
                 claims,
                 expires: DateTime.Now.AddMinutes(60),
-                signingCredentials:credentials
+                signingCredentials: credentials
                 );
 
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
@@ -93,13 +121,11 @@ namespace NZWalks.API.Repositories.Repository
             return response;
 
 
-
-
         }
 
 
 
-        public async Task<IEnumerable<UserDto>> GetAllUsers()
+            public async Task<IEnumerable<UserDto>> GetAllUsers()
         {
             var users = await _userManager.Users.ToListAsync();
             var userDtos = new List<UserDto>();
@@ -149,5 +175,6 @@ namespace NZWalks.API.Repositories.Repository
                 await _userManager.DeleteAsync(user);
            
         }
+
     }
 }

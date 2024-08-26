@@ -8,7 +8,9 @@ namespace NZWalks.API.Repositories.IRepository
     {
         Task<IdentityResult?> Register(RegisterDto registerDto);
 
-        Task<LoginResponseDto> CreateJwtToken(IdentityUser identityUser, List<string> roles);
+        Task<LoginResponseDto?> Login(LoginDto loginDto);
+
+        //Task<LoginResponseDto> CreateJwtToken(IdentityUser identityUser, List<string> roles);
 
         Task<IEnumerable<UserDto>> GetAllUsers();
 
