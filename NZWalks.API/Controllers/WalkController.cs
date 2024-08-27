@@ -27,20 +27,12 @@ namespace NZWalks.API.Controllers
         [HttpGet]
         [Authorize(Roles = Roles.Reader)]
         public async Task<ActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
-            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
-            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
-            try
-            {
-                var walk = await _walkRepository.GetAll(filterOn, filterQuery, sortBy, isAscending ?? true, pageNumber, pageSize);
 
-                return Ok(walk);
-            }
-            catch (Exception ex)
-            {
+            var walk = await _walkRepository.GetAll(filterOn, filterQuery, sortBy, isAscending ?? true, pageNumber, pageSize);
 
-                throw;
-            }
+            return Ok(walk);
 
         }
 
@@ -51,22 +43,14 @@ namespace NZWalks.API.Controllers
         [Authorize(Roles = Roles.Reader)]
         public async Task<ActionResult> GetById(int id)
         {
-            try
+            var walk = await _walkRepository.GetById(id);
+
+            if (walk is null)
             {
-                var walk = await _walkRepository.GetById(id);
-
-                if (walk is null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(walk);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
 
-                throw;
-            }
+            return Ok(walk);
 
         }
 
@@ -78,17 +62,10 @@ namespace NZWalks.API.Controllers
         [Authorize(Roles = Roles.Writer)]
         public async Task<ActionResult> Create([FromBody] WalkDto walkDto)
         {
-            try
-            {
-                await _walkRepository.Create(walkDto);
 
-                return Ok();
-            }
-            catch (Exception ex)
-            {
+            await _walkRepository.Create(walkDto);
 
-                throw;
-            }
+            return Ok();
 
         }
 
@@ -100,27 +77,20 @@ namespace NZWalks.API.Controllers
         [Authorize(Roles = Roles.Writer)]
         public async Task<ActionResult> Update(int id, [FromBody] WalkDto walkDto)
         {
-            try
-            {
-                if (walkDto.Id != id)
-                    return BadRequest("Model Id & Parameter Id is not same");
+
+            if (walkDto.Id != id)
+                return BadRequest("Model Id & Parameter Id is not same");
 
 
-                var walk = await _walkRepository.GetById(id);
+            var walk = await _walkRepository.GetById(id);
 
-                if (walk is null)
-                    return NotFound();
+            if (walk is null)
+                return NotFound();
 
 
-                await _walkRepository.Update(walkDto);
+            await _walkRepository.Update(walkDto);
 
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            return Ok();
 
         }
 
@@ -131,23 +101,16 @@ namespace NZWalks.API.Controllers
         [Authorize(Roles = Roles.Writer)]
         public async Task<ActionResult> Delete(int id)
         {
-            try
-            {
-                var walk = await _walkRepository.GetById(id);
 
-                if (walk is null)
-                    return NotFound();
+            var walk = await _walkRepository.GetById(id);
+
+            if (walk is null)
+                return NotFound();
 
 
-                await _walkRepository.Delete(walk);
+            await _walkRepository.Delete(walk);
 
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            return Ok();
 
         }
 

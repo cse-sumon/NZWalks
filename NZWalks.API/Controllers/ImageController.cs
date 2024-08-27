@@ -24,24 +24,16 @@ namespace NZWalks.API.Controllers
         [ValidateModelAttribute]
         public async Task<IActionResult> Upload([FromForm] ImageDto imageDto)
         {
-            try
+            ValidateFileUpload(imageDto);
+
+            if (!ModelState.IsValid)
             {
-                ValidateFileUpload(imageDto);
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                await _imageRepository.Upload(imageDto);
-
-                return Ok();
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
-            {
 
-                throw;
-            }
+            await _imageRepository.Upload(imageDto);
+
+            return Ok();
 
         }
 
@@ -52,16 +44,10 @@ namespace NZWalks.API.Controllers
         [Route("GetAllImages")]
         public async Task<IActionResult> GetAllImages()
         {
-            try
-            {
-                var images = await _imageRepository.GetAllImages();
-                return Ok(images);
-            }
-            catch (Exception ex)
-            {
 
-                throw;
-            }
+            var images = await _imageRepository.GetAllImages();
+            return Ok(images);
+
         }
 
 

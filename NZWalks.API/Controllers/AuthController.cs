@@ -36,27 +36,17 @@ namespace NZWalks.API.Controllers
         //[Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
-            try
+
+            var identityResult = await _authRepository.Register(registerDto);
+
+            if (identityResult != null && identityResult.Succeeded)
             {
-
-                var identityResult = await _authRepository.Register(registerDto);
-
-                if (identityResult != null && identityResult.Succeeded)
-                {
-                    return Ok("User registered successfully! Please login.");
-                }
-                else
-                {
-                    return BadRequest("Unable to registered! Something went wrong");
-                }
-
-
+                return Ok("User registered successfully! Please login.");
             }
-            catch (Exception ex)
+            else
             {
-
-                throw;
-            } 
+                return BadRequest("Unable to registered! Something went wrong");
+            }
         }
 
 
@@ -66,24 +56,16 @@ namespace NZWalks.API.Controllers
         [ValidateModelAttribute]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            try
-            {
-                var loginResponseDto = await _authRepository.Login(loginDto);
-               
-                if (loginResponseDto is not null)
-                {
-                    return Ok(loginResponseDto);
-                }
-                else
-                {
-                    return BadRequest("UserName or Password incorrect");
-                }
 
+            var loginResponseDto = await _authRepository.Login(loginDto);
+
+            if (loginResponseDto is not null)
+            {
+                return Ok(loginResponseDto);
             }
-            catch (Exception ex)
+            else
             {
-
-                throw;
+                return BadRequest("UserName or Password incorrect");
             }
         }
 
@@ -96,16 +78,8 @@ namespace NZWalks.API.Controllers
         //[Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> GetUsers()
         {
-            try
-            {
-                var users = await _authRepository.GetAllUsers();
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            var users = await _authRepository.GetAllUsers();
+            return Ok(users);
         }
 
 
@@ -116,20 +90,12 @@ namespace NZWalks.API.Controllers
         //[Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> GetUserById(string id)
         {
-            try
-            {
-                var user = await _authRepository.GetUserById(id);
+            var user = await _authRepository.GetUserById(id);
 
-                if (user is null)
-                    return NotFound();
+            if (user is null)
+                return NotFound();
 
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            return Ok(user);
         }
 
 
@@ -141,20 +107,13 @@ namespace NZWalks.API.Controllers
         //[Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            try
-            {
-                var user = await _authRepository.GetUserById(id);
-                if(user is null)
-                    return NotFound();
+            var user = await _authRepository.GetUserById(id);
+            if (user is null)
+                return NotFound();
 
-                await _authRepository.Delete(id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
+            await _authRepository.Delete(id);
+            return Ok();
 
-                throw;
-            }
         }
 
 
