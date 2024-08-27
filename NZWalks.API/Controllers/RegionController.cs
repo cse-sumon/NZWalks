@@ -14,7 +14,7 @@ namespace NZWalks.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+   // [Authorize]
     public class RegionController : ControllerBase
     {
 
@@ -28,7 +28,7 @@ namespace NZWalks.API.Controllers
         // Get All Regions
         // GET: https://localhost:portnumber/api/region
         [HttpGet]
-        [Authorize(Roles = Roles.Reader)]
+        //[Authorize(Roles = Roles.Reader)]
         public async Task<IActionResult> GetAll()
         {
             try

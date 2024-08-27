@@ -108,7 +108,7 @@ namespace NZWalks.API.Repositories.Repository
                 signingCredentials: credentials
                 );
 
-            var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+            var jwtToken =  new JwtSecurityTokenHandler().WriteToken(token);
 
             var response = new LoginResponseDto
             {
